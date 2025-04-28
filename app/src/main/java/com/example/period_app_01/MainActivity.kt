@@ -33,14 +33,15 @@ class MainActivity : ComponentActivity() {
     /*
      * overrides onCreate method as defined in ComponentActivity class
      * onCreate initializes an activity (e.g. initializing UI, preparing data, etc.)
-     * 
+     * savedInstanceState parameter does nothing here, UI is primitive and data is in database
+     * however, removing the argument causes issues with calling onCreate function, hence it stays
      * what is an Activity?
      */
     override fun onCreate(savedInstanceState: Bundle?) {
-        //
+        // within the overriding method, we call the method from the parent class
         super.onCreate(savedInstanceState)
+        // test whether removing this changes the app
         enableEdgeToEdge()
-
         //
         val database = DatesDatabase.getDatabase(applicationContext)
         //
