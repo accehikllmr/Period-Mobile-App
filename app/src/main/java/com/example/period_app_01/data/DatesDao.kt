@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.OnConflictStrategy
-import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 
 /*
@@ -26,13 +25,4 @@ interface DatesDao {
 
     @Query("SELECT * FROM Dates ORDER BY id DESC LIMIT 1")
     fun getLastEntry(): Flow<Dates?>
-
-    @Query("SELECT MAX(id) FROM Dates")
-    fun getLastId(): Flow<Int>
-
-    @Query("SELECT period FROM Dates WHERE id = (SELECT MAX(id) FROM Dates)")
-    fun getLastPeriod(): Flow<Long>
-
-    @Query("SELECT date FROM Dates WHERE id = (SELECT MAX(id) FROM Dates)")
-    fun getLastDate(): Flow<LocalDate?>
 }
