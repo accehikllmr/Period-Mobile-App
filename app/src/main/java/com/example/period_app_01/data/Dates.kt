@@ -14,9 +14,9 @@ import java.time.LocalDate
 data class Dates(
     // to distinguish individual entries in table, requires declaration and initialization of value
     @PrimaryKey(autoGenerate = false)
-    val id: Int = 0,
+    val id: Int? = 0,
     // string, since otherwise need to add a typeconverter class
     val date: LocalDate?,
     //
-    val period: Long = 0
+    val period: Long? = 0
 )
