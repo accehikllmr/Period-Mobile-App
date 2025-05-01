@@ -4,15 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.ui.Modifier
-//import androidx.compose.ui.tooling.preview.Preview
 import com.example.period_app_01.ui.theme.Period_app_01Theme
 import com.example.period_app_01.data.DatesDatabase
 import com.example.period_app_01.data.DatesDao
 
+// PRUNE
 // ADD COMMENTS TO NEW FUNCTIONALITY
 // DEPLOY APP TO MOTOROLA
 // SETUP UNIT TESTS
@@ -27,6 +23,7 @@ class MainActivity : ComponentActivity() {
     /*
      * declaration of variable, DatesDao object, implements methods which allow access to data
      * lateinit allows declaration of non-nullable property without performing null check (i.e. == null)
+     * will be passed to EnterDate method below
      * why use laneinit in this context?
      */
     private lateinit var datesDao: DatesDao
@@ -40,33 +37,34 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         // within the overriding method, we call the method from the parent class
         super.onCreate(savedInstanceState)
-        // test whether removing this changes the app
+        // hides upper bar with device statuses (e.g. wifi, battery, etc.)
         enableEdgeToEdge()
-        //
+        // declaring and initializing a value which stores a new database instance
         val database = DatesDatabase.getDatabase(applicationContext)
-        //
+        /*
+         * initializing previously declared variable using above database instance
+         * calling method which establishes link between database and DAO
+         * variable needed to pass a argument to EnterDate method
+         */
         datesDao = database.datesDao()
 
+        /*
+         * setContent defines the UI for an activity
+         * seems standard across all applications built thus far
+         * what is an activity?
+         */
         setContent {
+            // provides a coherent theme to the entire application, given resources (eg. colour, type)
             Period_app_01Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    EnterDate(
-                        messageDate = resources.getString(R.string.enter_date),
-                        modifier = Modifier.padding(innerPadding),
-                        datesDao = datesDao
-                    )
-                }
+                /*
+                 * Scaffold provides basic layout structure for screen
+                 * not necessary, in fact useless, with this primitive user interface
+                 */
+                EnterDate(
+                    messageDate = resources.getString(R.string.enter_date),
+                    datesDao = datesDao
+                )
             }
         }
     }
 }
-
-/* below is preview, will use when working on more sophisticated UI
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Period_app_01Theme {
-        Greeting("Android")
-    }
-}
-*/
