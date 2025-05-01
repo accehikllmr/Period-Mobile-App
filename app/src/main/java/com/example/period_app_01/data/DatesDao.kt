@@ -16,7 +16,7 @@ interface DatesDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     /*
      * function to insert entry into database, passing Dates entity as argument
-     * suspend keyword makes it run on a different thread
+     * using coroutines, suspend keyword makes it run on a different thread
      * i.e. not block other operations in same thread, while awaiting SQL query result
      */
     suspend fun insert(dates: Dates)
@@ -35,6 +35,4 @@ interface DatesDao {
 
     @Query("SELECT date FROM Dates WHERE id = (SELECT MAX(id) FROM Dates)")
     fun getLastDate(): Flow<LocalDate?>
-
-    // add query to retrieve previous value for period
 }
