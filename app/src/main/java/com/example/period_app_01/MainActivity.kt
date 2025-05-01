@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
         /*
          * setContent defines the UI for an activity
          * seems standard across all applications built thus far
-         * what is an activity?
+         * what is an Activity?
          */
         setContent {
             // provides a coherent theme to the entire application, given resources (eg. colour, type)
