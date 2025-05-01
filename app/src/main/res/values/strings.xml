@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">period_app_01</string>
-    <string name="enter_date">DD-MM-YYYY</string>
+    <string name="enter_date">YYYY-MM-DD</string>
 </resources>
