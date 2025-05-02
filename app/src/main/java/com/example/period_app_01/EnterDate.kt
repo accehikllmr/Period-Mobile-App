@@ -75,14 +75,16 @@ fun EnterDate(messageDate: String, datesDao: DatesDao) {
     val lastIdEntry: Int? = lastEntry?.id
     val lastPeriodEntry: Long? = lastEntry?.period
     val lastDateEntry: LocalDate? = lastEntry?.date
-    // specifying date format which will be accepted by the TextFieldValue
+    // specifying date format, from the user, which will be accepted by the TextFieldValue
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
+    // organizing elements into a column, so that they don't overlap
     Column(
         modifier = Modifier
             .fillMaxWidth(),
         verticalArrangement = Arrangement.Center
     ) {
+        // TextField can have many more parameters, but some were breaking the functionality
         TextField(
             // parameters for text field, more can be added, but some of them break this function
             value = textDate.value,
