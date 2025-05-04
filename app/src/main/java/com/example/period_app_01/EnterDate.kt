@@ -1,8 +1,6 @@
 package com.example.period_app_01
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
@@ -75,20 +73,21 @@ fun EnterDate(messageDate: String, datesDao: DatesDao) {
     val lastIdEntry: Int? = lastEntry?.id
     val lastPeriodEntry: Long? = lastEntry?.period
     val lastDateEntry: LocalDate? = lastEntry?.date
-    // specifying date format, from the user, which will be accepted by the TextFieldValue
+    /*
+     * specifying date format, from the user, which will be accepted by the TextFieldValue
+     * not using value from resources since too complicated within composable function (ask Gemini)
+     */
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-    // organizing elements into a column, so that they don't overlap
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.Center
-    ) {
+    // organizing elements into a column, so that they don't overlap, primitive UI so empty constructor
+    Column {
         // TextField can have many more parameters, but some were breaking the functionality
         TextField(
-            // parameters for text field, more can be added, but some of them break this function
+            // retrieving value from state variable
             value = textDate.value,
+            //
             onValueChange = { textDate.value = it},
+            //
             placeholder = { Text(messageDate) },
             // restricting input to a single line
             singleLine = true,
