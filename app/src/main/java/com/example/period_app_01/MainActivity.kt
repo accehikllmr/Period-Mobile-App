@@ -8,12 +8,6 @@ import com.example.period_app_01.ui.theme.Period_app_01Theme
 import com.example.period_app_01.data.DatesDatabase
 import com.example.period_app_01.data.DatesDao
 
-// PRUNE
-// ADD COMMENTS TO NEW FUNCTIONALITY
-// DEPLOY APP TO MOTOROLA
-// SETUP UNIT TESTS
-// REFACTOR ENTERDATE.KT (too much going on in single class)
-
 /*
  * main class, extends ComponentActivity class
  * what is ComponentActivity class?
