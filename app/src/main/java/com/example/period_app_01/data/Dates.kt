@@ -15,8 +15,8 @@ data class Dates(
     // to distinguish individual entries in table, requires declaration and initialization of value
     @PrimaryKey(autoGenerate = false)
     val id: Int? = 0,
-    // string, since otherwise need to add a typeconverter class
+    // needed DatesConverter class to make this work, database doesn't accept LocalDate normally
     val date: LocalDate?,
-    //
+    // dates are stored as Long values, specifically number of days
     val period: Long? = 0
 )
