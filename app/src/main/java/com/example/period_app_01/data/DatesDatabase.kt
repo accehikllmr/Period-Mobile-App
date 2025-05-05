@@ -36,6 +36,7 @@ abstract class DatesDatabase : RoomDatabase() {
                 // building the database instance
                 Room.databaseBuilder(context, DatesDatabase::class.java, "dates_database")
                     .build().also { Instance = it }
+
             }
         }
     }
