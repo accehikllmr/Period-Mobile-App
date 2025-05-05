@@ -6,15 +6,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -23,7 +19,6 @@ import kotlinx.coroutines.launch
 
 import java.time.LocalDate
 import java.time.Period
-import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 
@@ -46,8 +41,8 @@ fun EnterDate(messageDate: String, datesDao: DatesDao) {
      * current is a property of this type of object
      */
     val keyboardController = LocalSoftwareKeyboardController.current
-    // to allow focusing to a particular part of the UI (e.g. keyboard), remember to preserve state
-    val focusRequester = remember { FocusRequester() }
+    // keyboard appears when user clicks on TextField
+    keyboardController?.show()
     /*
      * tied to the lifecycle of this composable function (see annotation preceding method)
      * essential for launching coroutines within composables
@@ -73,11 +68,6 @@ fun EnterDate(messageDate: String, datesDao: DatesDao) {
     val lastIdEntry: Int? = lastEntry?.id
     val lastPeriodEntry: Long? = lastEntry?.period
     val lastDateEntry: LocalDate? = lastEntry?.date
-    /*
-     * specifying date format, from the user, which will be accepted by the TextFieldValue
-     * not using value from resources since too complicated within composable function (ask Gemini)
-     */
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
     // organizing elements into a column, so that they don't overlap, primitive UI so empty constructor
     Column {
@@ -85,101 +75,119 @@ fun EnterDate(messageDate: String, datesDao: DatesDao) {
         TextField(
             // retrieving value from state variable
             value = textDate.value,
-            //
+            /*
+             * calls lambda function everytime value of TextField changes
+             * "it" represents the new value after each change
+             * value of textDate value is reassigned upon each change
+             */
             onValueChange = { textDate.value = it},
-            //
+            //message which appears in TextField prior to receiving any input from user
             placeholder = { Text(messageDate) },
             // restricting input to a single line
             singleLine = true,
+            // declaring and initializing a KeyboardOptions object, passing arguments to fields
             keyboardOptions = KeyboardOptions(
-                // keyboard on screen only has numbers
+                // keyboard on screen only has numbers, and relevant symbols
                 keyboardType = KeyboardType.Number,
-                // action performed by keyboard, changes icon accordingly
+                // action performed by keyboard, changes icon accordingly (e.g. checkmark)
                 imeAction = ImeAction.Done
             ),
+            // declaring and initializing a KeyboardActions objects, passing arguments to fields
             keyboardActions = KeyboardActions(
                 // actions performed when pressing the checkmark on the keyboard
+                // optimal to write function is separate class?
                 onDone = {
-                    // makes the keyboard disappear
-                    keyboardController?.hide()
                     // retrieve the value from the TextField
                     val text = textDate.value.text
-                    // conditions (need to be improved in order to protect from invalid inputs)
-                    // delete previous date if database is not empty
-
+                    // launching coroutine, since many possible outcomes involve database interaction
                     coroutineScope.launch {
+                        /*
+                         * code to delete last entry, if such an entry exists
+                         * retrieve string resource within a composable?
+                         */
                         if (text == "0000-00-00" && lastEntry != null) {
                             datesDao.deleteLast()
-                        //
+                        // inputting valid date, but database is empty
                         } else if (text != "0000-00-00" && lastEntry == null) {
-                            //
+                            // parsing incorrectly formatted string throws exception
                             try {
-                                val stringToDate: LocalDate? = LocalDate.parse(text, formatter)
+                                // parse text to convert from String object to LocalDate? object
+                                val stringToDate: LocalDate? = LocalDate.parse(text)
+                                // instantiating new Dates? object, values are zero since database is empty
                                 val newDate = Dates(
                                     id = 0,
                                     date = stringToDate,
                                     period = 0
                                 )
-                                //
                                 datesDao.insert(newDate)
+                            // catching exception, and doing nothing (no parsing and no adding to database)
                             } catch(exception: DateTimeParseException) {
                                 run {}
                             }
+                        // inputting valid date, but database is not empty
                         } else {
-                            //
+                            // same layout as previous condition block
                             try {
-                                val stringToDate: LocalDate? = LocalDate.parse(text, formatter)
-                                //
+                                val stringToDate: LocalDate? = LocalDate.parse(text)
+                                // arguments passed to Dates? entity more complicated, since not first entry
                                 val newDate = Dates(
+                                    /*
+                                     * incrementing id by one by comparing to previous entry id
+                                     * method call since adding to Int? rather than Int
+                                     */
                                     id = lastIdEntry?.plus(1),
                                     date = stringToDate,
-                                    // between method for Period does not work if exceeding one month, since days reset to 0
+                                    /*
+                                     * between method for Period does not work if exceeding one month,
+                                     * since days reset to 0
+                                     * ChronoUnit.DAYS finds time between dates in days, rather than
+                                     * years, months, days, etc.
+                                     * method call since adding to Long? rather than Long
+                                     */
                                     period = lastPeriodEntry?.plus(ChronoUnit.DAYS.between(lastDateEntry, stringToDate))
-                                    // period = lastPeriodEntry + ChronoUnit.DAYS.between(lastDateEntry, stringToDate)
                                 )
-                                //
                                 datesDao.insert(newDate)
                             } catch (exception: DateTimeParseException) {
                                 run {}
                             }
                         }
                     }
-                    // reset the field
+                    // reset the field, since user input value has been properly handled
                     textDate.value = TextFieldValue("")
-                    //
-                    keyboardController?.show()
-                    //
-                    focusRequester.requestFocus()
                 }
             ),
-            modifier = Modifier.focusRequester(focusRequester)
         )
-        //
+        /*
+         * safe call operator ?, so only adds text to UI if value is not null
+         * lambda function, where "it" represents lastEntry entity
+         * using $ prefix to convert the date colum from the entity to a String
+         * calling Text composable, which displays to UI
+         */
         lastEntry?.let {
             Text(text = "Last period date: ${it.date}")
         }
 
+        // can only calculate next period date if there are at least 2 entries
         if (lastIdEntry != 0) {
             /*
-            * long value, therefore loses precision which affects accuracy of predictions
+            * Long? value, therefore loses precision which affects accuracy of predictions
             * lastPeriodEntry is sum of all periods, lastIdEntry is total rows in table minus 1
+            * using !! operator to guarantee that value is not null (i.e. table is not empty)
+            * method for division since lastPeriodEntry is nullable type
             */
             val averagePeriod = lastPeriodEntry?.div(lastIdEntry!!)
-            // val averagePeriod = lastPeriodEntry / lastIdEntry
             /*
             * using method from time library to add days to most recent period date
             * converting averagePeriod to integers since method does not take long value
+            * using !! operator, as was done above
+            * method for addition since lastDateEntry is nullable type
             */
             val nextPeriodDate = lastDateEntry?.plus(Period.ofDays(averagePeriod!!.toInt()))
-            //val nextPeriodDate = lastDateEntry?.plus(Period.ofDays(averagePeriod.toInt()))
 
-            if (lastEntry != null) {
+            // similar to above, but instead of displaying "it", displaying other variable
+            lastEntry?.let {
                 Text(text = "Next period date: $nextPeriodDate")
             }
         }
-    }
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-        keyboardController?.show()
     }
 }
