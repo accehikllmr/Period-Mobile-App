@@ -20,9 +20,11 @@ interface DatesDao {
      */
     suspend fun insert(dates: Dates)
 
+    // deleting entry with maximum id value, since this entry is the most recent
     @Query("DELETE FROM Dates WHERE id = (SELECT MAX(id) FROM Dates)")
     suspend fun deleteLast()
 
+    // retrieving most recent entry by ordering entries in descending order and taking top
     @Query("SELECT * FROM Dates ORDER BY id DESC LIMIT 1")
     fun getLastEntry(): Flow<Dates?>
 }
