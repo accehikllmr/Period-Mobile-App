@@ -12,19 +12,18 @@ import androidx.room.TypeConverters
  * and requires uninstalling app from emulator when changed
  */
 @Database(entities = [Dates::class], version = 1, exportSchema = false)
-//
+// applies conversion rules outlined in DatesConverter class
 @TypeConverters(DatesConverter::class)
 // extends RoomDatabase class (built-in class)
 abstract class DatesDatabase : RoomDatabase() {
     // function which returns the DAO (make database aware of DAO's existence)
     abstract fun datesDao(): DatesDao
-
+    // contains a block of code which has functionality related to the class, not an instance (static)
     companion object {
         // ensures changes made to Instance (database) are harmonized across all threads
         @Volatile
         // variable keeps reference to database, when created, so single instance opened at a time
         private var Instance: DatesDatabase? = null
-
         // function which returns database
         fun getDatabase(context: Context): DatesDatabase {
             /*
